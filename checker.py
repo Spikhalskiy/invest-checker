@@ -7,6 +7,7 @@ from json import loads
 from datetime import datetime
 import lxml
 import traceback
+from settings import Settings
 
 BUF = len(sys.argv) > 1 and sys.argv[1] == 'buf'
 TIMESTAMP = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -66,9 +67,15 @@ class Provider:
 
 class FXTrend(Provider):
         def get_login_url(self):        return "https://fx-trend.com/login"
-        def get_credentials(self):      return {'login': '$$$', 'pass': '%%%'}
+
+        def get_credentials(self):
+            settings = Settings("checker.properties")
+            return {'login': settings.get_property("fx.username"), 'pass': settings.get_property("fx.password")}
+
         def get_login_form(self):       return 'login_form'
+
         def get_data_url(self):         return "https://fx-trend.com/my/pamm_investor/accounts/"
+
         def extract(self, h):
                 return map(
                         lambda x: (x[1][0].text, x[2].text_content(), x[6].text.strip(), x[7].text.strip()),#, x[8].text.strip()),
@@ -81,9 +88,13 @@ class FXTrend(Provider):
 
 class Alpari(Provider):
         def get_login_url(self):    return "https://www.alpari.ru/ru/login/"
+
         def get_credentials(self):  return {'login': '$$$', 'password': '%%%'}
+
         def get_data_url(self):     return "https://my.alpari.ru/ru/"
+
         def get_login_form(self):       return "login"
+
         def extract(self, h):
                 table = fragment_fromstring(loads(
                         self._read_url("https://my.alpari.ru/ru/my_pamm/my/essence/share/action/managed_accounts/id_paging_show/1/")
@@ -106,22 +117,30 @@ class Alpari(Provider):
 
 class GammaIC(Provider):
         def get_login_url(self):        return "https://gamma-ic.com/"
-        def get_credentials(self):      return {"USER_LOGIN": "%%%", "USER_PASSWORD": "%%%"}
+
+        def get_credentials(self):
+            settings = Settings("checker.properties")
+            return {'USER_LOGIN': settings.get_property("gamma.username"),
+                    'USER_PASSWORD': settings.get_property("gamma.password")}
+
         def get_login_form(self):   return "enter"
+
         def get_data_url(self):         return "https://gamma-ic.com/investor/"
+
         def extract(self, h):
                 return [[
                         'GammaIC',
                         'GammaIC',
                         float(h.cssselect('div.yy > ul > li')[0].text_content().strip().split(' ')[0]),
                         float(h.cssselect('div.block_left div.yi > ul > li')[0].text_content().strip().split(' ')[0])
-                ]]
+                        ]]
 
 
 def process(provider):
         p = provider()
         p.login()
         return p.parse()
+
 
 def total(provider):
         data = process(provider)
@@ -130,6 +149,7 @@ def total(provider):
         profit = reduce(operator.add, map(lambda x: x.profit, data))
         depo = reduce(operator.add, map(lambda x: x.deposit, data))
         print profit, depo, profit/depo
+
 
 def report(*args):
         for provider in args:
@@ -140,9 +160,9 @@ def report(*args):
                         print "Error occured while processing " + str(provider)
                         traceback.print_exc(e)
 
-# total(GammaIC)
+total(GammaIC)
 # total(Alpari)
-# total(FXTrend)
+total(FXTrend)
 
-report(GammaIC, FXTrend, Alpari)
+# report(GammaIC, FXTrend, Alpari)
 #report(Alpari)
