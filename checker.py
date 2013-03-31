@@ -1,7 +1,7 @@
 import operator
 import traceback
-from checker.providers import *
-from checker.model_db_manager import save
+from providers import *
+from model_db_manager import save
 
 
 def process(provider):

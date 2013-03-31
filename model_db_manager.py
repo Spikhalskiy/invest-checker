@@ -1,5 +1,5 @@
 import sqlite3 as lite
-from checker.model import *
+from model import *
 
 
 def transactional(fn):

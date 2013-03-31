@@ -5,7 +5,7 @@ from mechanize import Browser
 from lxml.html import document_fromstring, fragment_fromstring
 
 from settings import Settings
-from checker.model import *
+from model import *
 
 
 class Provider:

@@ -1,4 +1,6 @@
 **/.idea/**
 
+**/mods/**
+
 checker.properties
 checker.db
