@@ -1,13 +1,12 @@
-from mechanize import Browser
-from lxml.cssselect import CSSSelector
-from lxml.html import document_fromstring, fragment_fromstring
-from lxml.etree import tostring
-import sys, operator, re
+import re
 from json import loads
-import lxml
-import traceback
+
+from mechanize import Browser
+from lxml.html import document_fromstring, fragment_fromstring
+
 from settings import Settings
-from model import *
+from checker.model import *
+
 
 class Provider:
 

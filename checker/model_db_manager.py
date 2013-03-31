@@ -1,5 +1,6 @@
 import sqlite3 as lite
-from model import *
+from checker.model import *
+
 
 def transactional(fn):
     """add transactional semantics to a method."""
