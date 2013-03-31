@@ -1,8 +1,9 @@
 import sqlite3 as lite
 from model import *
 from datetime import timedelta
+import dateutil.parser
 
-RECORD_SQL_COLUMN_NAMES = "provider_name, timestamp, account, pamm, deposit, balance"
+RECORD_SQL_COLUMN_NAMES = "provider, timestamp, account, pamm, deposit, balance"
 
 def transactional(fn):
     """add transactional semantics to a method."""
@@ -23,7 +24,7 @@ def transactional(fn):
 @transactional
 def init_db(connection):
     connection.execute("CREATE TABLE Record(Id integer primary key autoincrement, \
-                provider_name VARCHAR(64), timestamp TIMESTAMP, account TEXT, pamm TEXT, \
+                provider VARCHAR(64), timestamp TIMESTAMP, account TEXT, pamm TEXT, \
                 deposit REAL, balance REAL)")
 
 @transactional
@@ -38,11 +39,11 @@ def get_last_results_for_period(connection, number_of_days):
         start_datetime.year, start_datetime.month, start_datetime.day, 0, 0, 0)
 
     query = ("SELECT %s FROM Record" % RECORD_SQL_COLUMN_NAMES) + " JOIN \
-                        (SELECT MAX(timestamp) as tmstmp, provider_name as prov_name, account as acc \
+                        (SELECT MAX(timestamp) as tmstmp, provider as prov_name, account as acc \
                             FROM Record WHERE timestamp > :from_time \
-                            GROUP BY provider_name, account, \
+                            GROUP BY provider, account, \
                             strftime(" + r"'%Y%m%d'" + ", timestamp)) \
-                        ON provider_name = prov_name AND account = acc AND timestamp = tmstmp"
+                        ON provider = prov_name AND account = acc AND timestamp = tmstmp"
 
     cur = connection.cursor()
 
