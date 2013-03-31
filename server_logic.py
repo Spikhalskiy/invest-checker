@@ -6,7 +6,7 @@ from dateutil.parser import parse
 
 
 def accounts_summary(period):
-    records = get_last_results_for_period(period)
+    records = get_last_results_for_period(period + 1)
     account_names = list(set(map(lambda x: x.account, records)))
 
     dates = map(lambda round_tmstmp: round_tmstmp.strftime("%Y-%m-%d"), list(set(
@@ -18,6 +18,13 @@ def accounts_summary(period):
     data_set = map(lambda name: sorted(filter(lambda rec: rec.account == name, records),
                                        cmp=lambda x, y: cmp(parse(x.timestamp), parse(y.timestamp))),
                    account_names)
+
+    for raw in data_set:
+        prev = None
+        for rec in raw:
+            if prev is not None:
+                rec.profit_in_perc = rec.balance - prev.balance - (rec.deposit - prev.deposit) / rec.deposit
+            prev = rec
 
     result = {
         "dates": dates,
