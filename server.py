@@ -2,9 +2,9 @@ from flask import Flask
 from server_logic import *
 from flask import request
 from flask import render_template
+from settings import Settings
 
 app = Flask("Invest Checker")
-
 
 @app.route('/accounts_summary')
 def get_accounts_summary():
@@ -16,4 +16,6 @@ def get_accounts_summary():
 def index():
     return render_template('index.html')
 
-app.run(host='localhost', port=8080, debug=True)
+
+settings = Settings("checker.properties")
+app.run(host=settings.get_property("ip.to.listen"), port=8080, debug=True)
