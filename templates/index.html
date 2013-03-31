@@ -3,7 +3,7 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		<title>Highcharts Example</title>
+		<title>Daily Profit Report</title>
 
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
         <script src="{{ url_for('static', filename='highcharts.js') }}"></script>
@@ -13,15 +13,15 @@
 		<script type="text/javascript">
             function display_graphics_for_account_summary (jsonResponse) {
                 var summary = jQuery.extend(true, {}, jsonResponse);
-                summary.dates.shift()
+                summary.dates.shift();
                 var dates = summary.dates;
 
                 var series = [];
                 summary.dataset.forEach(function(raw) {
-                    var rec = raw.shift()
-                    serie = {name: rec.account, data: []}
+                    var rec = raw.shift();
+                    serie = {name: rec.account, data: []};
                     raw.forEach(function(rec) {
-                        serie.data.push(rec.profit_in_perc * 100) //*100 - %
+                        serie.data.push(rec.profit_in_perc * 100); //*100 - %
                     });
                     series.push(serie)
                 });
