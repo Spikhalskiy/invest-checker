@@ -19,7 +19,7 @@
                 var series = [];
                 summary.dataset.forEach(function(raw) {
                     var rec = raw.shift();
-                    serie = {name: rec.account, data: []};
+                    serie = {name: rec.pamm, data: []};
                     raw.forEach(function(rec) {
                         serie.data.push(rec.profit_in_perc * 100); //*100 - %
                     });
