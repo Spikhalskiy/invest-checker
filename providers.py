@@ -4,24 +4,10 @@ from lxml.html import document_fromstring, fragment_fromstring
 from lxml.etree import tostring
 import sys, operator, re
 from json import loads
-from datetime import datetime
 import lxml
 import traceback
 from settings import Settings
-
-class Record:
-    def __init__(self, data, timestamp=datetime.now()):
-        self.timestamp = timestamp
-        self.account = data[0]
-        self.pamm = data[1]
-        self.deposit = float(data[2])
-        self.balance = float(data[3])
-        self.profit = self.balance - self.deposit
-        self.percent = self.profit / self.deposit
-
-    def __str__(self):
-        return u', '.join(map(unicode, (self.timestamp.strftime("%Y-%m-%d %H:%M:%S"), self.account, self.pamm, self.deposit, self.balance, self.profit, self.percent))).encode('utf-8')
-
+from model import *
 
 class Provider:
 
@@ -68,7 +54,7 @@ class FXTrend(Provider):
 
     def extract(self, h):
         return map(
-            lambda x: (x[1][0].text, x[2].text_content(), x[6].text.strip(), x[7].text.strip()),#, x[8].text.strip()),
+            lambda x: ("FX-Trend", x[1][0].text, x[2].text_content(), x[6].text.strip(), x[7].text.strip()),#, x[8].text.strip()),
             filter(
                 lambda x: len(list(x)) > 1,
                 h.cssselect('div#investors_block table tr.dt_actual')
@@ -94,7 +80,7 @@ class Alpari(Provider):
             table[1]
         ))
         return map(
-            lambda x: (x[0], x[1], data[x[0]][0], x[3].replace(',','')),
+            lambda x: ("Alpari", x[0], x[1], data[x[0]][0], x[3].replace(',','')),
             map(
                 lambda x: (re.split('\W+', x[0][0].text)[0], x[0][0].get('title'), 1, x[1].text, 1),
                 filter(
@@ -119,6 +105,7 @@ class GammaIC(Provider):
 
     def extract(self, h):
         return [[
+                    "GammaIC",
                     'GammaIC',
                     'GammaIC',
                     float(h.cssselect('div.yy > ul > li')[0].text_content().strip().split(' ')[0]),
