@@ -1,6 +1,8 @@
 import sqlite3 as lite
 from model import *
+from datetime import timedelta
 
+RECORD_SQL_COLUMN_NAMES = "provider_name, timestamp, account, pamm, deposit, balance"
 
 def transactional(fn):
     """add transactional semantics to a method."""
@@ -8,8 +10,9 @@ def transactional(fn):
     def transact(*args):
         con = lite.connect('checker.db')
         try:
-            fn(con, *args)
+            result = fn(con, *args)
             con.commit()
+            return result
         except:
             con.rollback()
             raise
@@ -25,8 +28,28 @@ def init_db(connection):
 
 @transactional
 def save(connection, rec):
-    connection.execute("INSERT INTO Record(provider_name, timestamp, account, pamm, deposit, balance) \
-                        VALUES(?, ?, ?, ?, ?, ?)", rec.get_db_data())
+    connection.execute("INSERT INTO Record(%s) \
+                        VALUES(?, ?, ?, ?, ?, ?)" % RECORD_SQL_COLUMN_NAMES, rec.get_db_data())
+
+@transactional
+def get_last_results_for_period(connection, number_of_days):
+    start_datetime = datetime.now() - timedelta(days=number_of_days)
+    rounded_start_datetime = datetime(
+        start_datetime.year, start_datetime.month, start_datetime.day, 0, 0, 0)
+
+    query = ("SELECT %s FROM Record" % RECORD_SQL_COLUMN_NAMES) + " JOIN \
+                        (SELECT MAX(timestamp) as tmstmp, provider_name as prov_name, account as acc \
+                            FROM Record WHERE timestamp > :from_time \
+                            GROUP BY provider_name, account, \
+                            strftime(" + r"'%Y%m%d'" + ", timestamp)) \
+                        ON provider_name = prov_name AND account = acc AND timestamp = tmstmp"
+
+    cur = connection.cursor()
+
+    cur.execute(query, {"from_time": rounded_start_datetime})
+    data = cur.fetchall()
+    records = map(record_from_database, data)
+    return records
 
 
 def record_from_database(database_data):

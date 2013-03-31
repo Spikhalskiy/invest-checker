@@ -2,9 +2,13 @@ from datetime import datetime
 
 
 class Record:
-    def init_calculable_field(self):
-        self.profit = self.balance - self.deposit
-        self.percent = self.profit / self.deposit
+    @property
+    def profit(self):
+        return self.balance - self.deposit
+
+    @property
+    def percent(self):
+        return self.profit / self.deposit
 
     def __init__(self, data, timestamp=datetime.now()):
         self.provider_name = data[0]
@@ -13,7 +17,6 @@ class Record:
         self.pamm = data[2]
         self.deposit = float(data[3])
         self.balance = float(data[4])
-        self.init_calculable_field()
 
     def get_db_data(self):
         return self.provider_name, self.timestamp, self.account, self.pamm, self.deposit, self.balance

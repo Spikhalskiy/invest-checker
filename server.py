@@ -1,12 +1,14 @@
-import vertx
-from core.http import RouteMatcher
+from flask import Flask
+from server_logic import *
+from flask import request
 
-def get_accounts(req): req.response.end('You requested dogs')
+app = Flask("Invest Checker")
 
-server = vertx.create_http_server()
 
-route_matcher = RouteMatcher()
+@app.route('/accounts_summary')
+def get_accounts_summary():
+    period = int(request.args.get('period', 7))
+    return accounts_summary(period)
 
-route_matcher.get('/accounts', get_accounts)
 
-server.request_handler(route_matcher).listen(8080, 'localhost')
+app.run(host='localhost', port=8080, debug=True)
