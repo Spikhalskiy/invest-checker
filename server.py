@@ -1,10 +1,13 @@
-from flask import Flask
 from server_logic import *
 from flask import request
 from flask import render_template
 from settings import Settings
+from flask_wrapper import EnhancedFlask
+from flask_wrapper import Gzip
 
-app = Flask("Invest Checker")
+
+app = EnhancedFlask("Invest Checker")
+Gzip(app)
 
 @app.route('/accounts_summary')
 def get_accounts_summary():
