@@ -5,14 +5,14 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<title>Daily Profit Report</title>
 
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+		<script type="text/javascript" src="{{ url_for('static', filename='jquery-1.9.1.js') }}"></script>
         <script src="{{ url_for('static', filename='highcharts.js') }}"></script>
         <script src="{{ url_for('static', filename='exporting.js') }}"></script>
 
 
 		<script type="text/javascript">
-            function prepare_for_daily_profit(data) {
-                var summary = jQuery.extend(true, {}, data);
+            function prepare_for_daily_profit(account_summary_server_data) {
+                var summary = jQuery.extend(true, {}, account_summary_server_data);
 
                 summary.dates.shift();
                 var dates = summary.dates;
@@ -93,9 +93,55 @@
                 });
             }
 
+            function prepare_for_deposit_share(account_summary_server_data) {
+                var summary = jQuery.extend(true, {}, account_summary_server_data);
+
+                var last_date = summary.dates[summary.dates.length - 1];
+                return summary.dataset.reduce(function(resultArray, raw, index, array) {
+                    rec = raw[raw.length - 1];
+                    if (rec.date == last_date) {
+                        resultArray.push([rec.pamm, rec.deposit]);
+                    }
+                    return resultArray;
+                }, []);
+            }
+
+            function draw_deposit_share(deposit_share_prepared_data) {
+                // Build the chart
+                $('#deposit_share_container').highcharts({
+                    chart: {
+                        plotBackgroundColor: null,
+                        plotBorderWidth: null,
+                        plotShadow: false
+                    },
+                    title: {
+                        text: 'Deposit share by traders'
+                    },
+                    tooltip: {
+                        pointFormat: '{series.name}: <b>{point.percentage}%</b>',
+                        percentageDecimals: 1
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: false
+                            },
+                            showInLegend: true
+                        }
+                    },
+                    series: [{
+                        type: 'pie',
+                        name: 'Browser share',
+                        data: deposit_share_prepared_data
+                    }]
+                });
+            }
+
             function display_graphics_for_account_summary (jsonResponse) {
-                var daily_profit_data = prepare_for_daily_profit(jsonResponse);
-                draw_daily_profit(daily_profit_data);
+                draw_daily_profit(prepare_for_daily_profit(jsonResponse));
+                draw_deposit_share(prepare_for_deposit_share(jsonResponse));
             }
 
 
@@ -116,7 +162,7 @@
             </tr>
             <tr>
                 <td>
-
+                    <div id="deposit_share_container" style="min-width: 400px; height: 400px; margin: 0 auto"></div>
                 </td>
                 <td>
 
