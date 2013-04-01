@@ -11,8 +11,9 @@
 
 
 		<script type="text/javascript">
-            function display_graphics_for_account_summary (jsonResponse) {
-                var summary = jQuery.extend(true, {}, jsonResponse);
+            function prepare_for_daily_profit(data) {
+                var summary = jQuery.extend(true, {}, data);
+
                 summary.dates.shift();
                 var dates = summary.dates;
 
@@ -23,31 +24,34 @@
                     summary.dataset.forEach(function(raw) {
                         var rec = raw.shift();
 
-                        var serie_name = rec.pamm;
+                        var series_piece_name = rec.pamm;
 
-                        var serie = series_dict[serie_name];
+                        var series_piece = series_dict[series_piece_name];
 
-                        if (isNaN(serie)) {
-                            serie = {name: rec.pamm, data: []};
-                            series_dict[serie_name] = serie;
-                            series.push(serie);
+                        if (isNaN(series_piece)) {
+                            series_piece = {name: rec.pamm, data: []};
+                            series_dict[series_piece_name] = series_piece;
+                            series.push(series_piece);
                         }
 
                         var exists = false;
                         raw.forEach(function(rec) {
                             if (rec.date == date) {
-                                serie.data.push(rec.profit_in_perc * 100); //*100 - %
+                                series_piece.data.push(rec.profit_in_perc * 100); //*100 - %
                                 exists = true;
                             }
                         });
 
                         if (!exists)
-                            serie.data.push(0);
+                            series_piece.data.push(0);
 
                     });
                 });
+                return {dates: dates, series: series}
+            }
 
-                $('#container').highcharts({
+            function draw_daily_profit(daily_profit_prepared_data) {
+                $('#daily_profit_container').highcharts({
                     chart: {
                         type: 'line',
                         marginRight: 130,
@@ -62,7 +66,7 @@
                         x: -20
                     },
                     xAxis: {
-                        categories: dates
+                        categories: daily_profit_prepared_data.dates
                     },
                     yAxis: {
                         title: {
@@ -85,8 +89,13 @@
                         y: 100,
                         borderWidth: 0
                     },
-                    series: series
+                    series: daily_profit_prepared_data.series
                 });
+            }
+
+            function display_graphics_for_account_summary (jsonResponse) {
+                var daily_profit_data = prepare_for_daily_profit(jsonResponse);
+                draw_daily_profit(daily_profit_data);
             }
 
 
@@ -100,7 +109,22 @@
 	</head>
 	<body>
 
-    <div id="container" style="min-width: 400px; height: 400px; margin: 0 auto"></div>
+    <table>
+        <tbody>
+            <tr>
+                <div id="daily_profit_container" style="min-width: 400px; height: 400px; margin: 0 auto"></div>
+            </tr>
+            <tr>
+                <td>
+
+                </td>
+                <td>
+
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
 
 	</body>
 </html>
