@@ -17,13 +17,34 @@
                 var dates = summary.dates;
 
                 var series = [];
-                summary.dataset.forEach(function(raw) {
-                    var rec = raw.shift();
-                    serie = {name: rec.pamm, data: []};
-                    raw.forEach(function(rec) {
-                        serie.data.push(rec.profit_in_perc * 100); //*100 - %
+                var series_dict = {};
+
+                dates.forEach(function(date) {
+                    summary.dataset.forEach(function(raw) {
+                        var rec = raw.shift();
+
+                        var serie_name = rec.pamm;
+
+                        var serie = series_dict[serie_name];
+
+                        if (isNaN(serie)) {
+                            serie = {name: rec.pamm, data: []};
+                            series_dict[serie_name] = serie;
+                            series.push(serie);
+                        }
+
+                        var exists = false;
+                        raw.forEach(function(rec) {
+                            if (rec.date == date) {
+                                serie.data.push(rec.profit_in_perc * 100); //*100 - %
+                                exists = true;
+                            }
+                        });
+
+                        if (!exists)
+                            serie.data.push(0);
+
                     });
-                    series.push(serie)
                 });
 
                 $('#container').highcharts({

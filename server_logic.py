@@ -1,3 +1,4 @@
+from __future__ import division
 from datetime import datetime
 import simplejson as json
 from model_db_manager import get_last_results_for_period
@@ -9,9 +10,11 @@ def accounts_summary(period):
     records = get_last_results_for_period(period + 1)
     account_names = list(set(map(lambda x: x.account, records)))
 
-    dates = map(lambda round_tmstmp: round_tmstmp.strftime("%Y-%m-%d"), list(set(
-                map(lambda tmstmp: datetime(tmstmp.year, tmstmp.month, tmstmp.day),
-                    map(lambda rec: parse(rec.timestamp), records)))))
+    dates = map(lambda round_tmstmp: round_tmstmp.strftime("%Y-%m-%d"),
+                sorted(list(set(
+                    map(lambda tmstmp: datetime(tmstmp.year, tmstmp.month, tmstmp.day),
+                        map(lambda rec: parse(rec.timestamp), records)))))
+                )
 
     providers = list(set(map(lambda x: x.provider, records)))
 
@@ -19,11 +22,17 @@ def accounts_summary(period):
                                        cmp=lambda x, y: cmp(parse(x.timestamp), parse(y.timestamp))),
                    account_names)
 
+    #process records, add some info for rendering
     for raw in data_set:
         prev = None
         for rec in raw:
+            #add date for easy process on client
+            timestamp = parse(rec.timestamp)
+            rec.date = datetime(timestamp.year, timestamp.month, timestamp.day).strftime("%Y-%m-%d")
+
+            #add profit in perc in relation to previous date
             if prev is not None:
-                rec.profit_in_perc = rec.balance - prev.balance - (rec.deposit - prev.deposit) / rec.deposit
+                rec.profit_in_perc = ((rec.balance - prev.balance) - (rec.deposit - prev.deposit)) / rec.deposit
             prev = rec
 
     result = {
