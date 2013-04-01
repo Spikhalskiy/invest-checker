@@ -18,4 +18,6 @@ def index():
 
 
 settings = Settings("checker.properties")
-app.run(host=settings.get_property("ip.to.listen"), port=8080, debug=True)
+app.run(host=settings.get_property("ip.to.listen"),
+        port=int(settings.get_property("port.to.listen")),
+        debug=bool(settings.get_property("debug")))
