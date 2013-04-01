@@ -28,7 +28,7 @@
 
                         var series_piece = series_dict[series_piece_name];
 
-                        if (series_piece) {
+                        if (!series_piece) {
                             series_piece = {name: rec.pamm, data: []};
                             series_dict[series_piece_name] = series_piece;
                             series.push(series_piece);
