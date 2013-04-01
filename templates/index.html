@@ -14,7 +14,6 @@
             function prepare_for_daily_profit(account_summary_server_data) {
                 var summary = jQuery.extend(true, {}, account_summary_server_data);
 
-                summary.dates.shift();
                 var dates = summary.dates;
 
                 var series = [];
@@ -22,7 +21,7 @@
 
                 dates.forEach(function(date) {
                     summary.dataset.forEach(function(raw) {
-                        var rec = raw.shift();
+                        var rec = raw[0];
 
                         var series_piece_name = rec.pamm;
 

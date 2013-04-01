@@ -7,7 +7,7 @@ from dateutil.parser import parse
 
 
 def accounts_summary(period):
-    records = get_last_results_for_period(period + 1)
+    records = get_last_results_for_period(period + 1) # one more, earlier date for calculation
     account_names = list(set(map(lambda x: x.account, records)))
 
     dates = map(lambda round_tmstmp: round_tmstmp.strftime("%Y-%m-%d"),
@@ -15,6 +15,7 @@ def accounts_summary(period):
                     map(lambda tmstmp: datetime(tmstmp.year, tmstmp.month, tmstmp.day),
                         map(lambda rec: parse(rec.timestamp), records)))))
                 )
+    del dates[0]    # first date and corresponding records used only as helpers in calculation
 
     providers = list(set(map(lambda x: x.provider, records)))
 
@@ -34,6 +35,7 @@ def accounts_summary(period):
             if prev is not None:
                 rec.profit_in_perc = ((rec.balance - prev.balance) - (rec.deposit - prev.deposit)) / rec.deposit
             prev = rec
+        del raw[0]  # we use first element only for calculating, they are helpers and should be deleted
 
     result = {
         "dates": dates,
