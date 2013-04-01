@@ -1,0 +1,11 @@
+.daily_profit_container {
+    min-width: 400px;
+    height: 400px;
+    margin: 0 auto;
+}
+
+.deposit_share_container {
+    margin-left: 0;
+    width: 400px;
+    height: 400px;
+}
