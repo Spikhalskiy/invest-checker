@@ -33,7 +33,7 @@ def accounts_summary(period):
 
             #add profit in perc in relation to previous date
             if prev is not None:
-                rec.profit_in_perc = ((rec.balance - prev.balance) - (rec.deposit - prev.deposit)) / rec.deposit
+                rec.profit_in_perc = ((rec.balance - prev.balance) - (rec.deposit - prev.deposit)) / rec.balance
             prev = rec
 
         del raw[0]  # we use first element only for calculating, they are helpers and should be deleted
