@@ -35,11 +35,13 @@ def accounts_summary(period):
             if prev is not None:
                 rec.profit_in_perc = ((rec.balance - prev.balance) - (rec.deposit - prev.deposit)) / rec.deposit
             prev = rec
+
         del raw[0]  # we use first element only for calculating, they are helpers and should be deleted
+        if not raw:
+            del raw #if helper element is one in this raw - delete it
 
     result = {
         "dates": dates,
-        "accounts": account_names,
         "providers": providers,
         "dataset": map(lambda x: map(props, x), data_set)
     }
