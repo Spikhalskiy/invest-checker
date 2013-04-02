@@ -37,8 +37,8 @@ def accounts_summary(period):
             prev = rec
 
         del raw[0]  # we use first element only for calculating, they are helpers and should be deleted
-        if not raw:
-            del raw #if helper element is one in this raw - delete it
+
+    data_set = filter(lambda raw: raw, data_set) # remove empty raws (this raws contained only one helper element)
 
     result = {
         "dates": dates,
