@@ -52,7 +52,7 @@
                     summary_profit_in_percents.push(val * 100);
                 });
 
-                series.push({name: 'Summary', data: summary_profit_in_percents});
+                series.push({name: 'Summary', data: summary_profit_in_percents, lineWidth: 3, dashStyle: 'LongDash', color: '#D00000'});
 
                 return {dates: dates, series: series}
             }
@@ -87,6 +87,14 @@
                     },
                     tooltip: {
                         valueSuffix: '%'
+                    },
+                    plotOptions: {
+                        line: {
+                            dataLabels: {
+                                enabled: false
+                            },
+                            enableMouseTracking: true
+                        }
                     },
                     legend: {
                         layout: 'vertical',
