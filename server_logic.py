@@ -12,7 +12,8 @@ def calculate_profit(curr_rec, prev_rec):
     if curr_rec.provider == FX_TREND_PROVIDER_NAME:
         # fx-trend profit calculation strategy
         if curr_rec.declared_profit and prev_rec.declared_profit:
-            return (curr_rec.declared_profit - prev_rec.declared_profit) * prev_rec.balance
+            # divide by 100 because declared_profit in FX-Trend is percents
+            return (curr_rec.declared_profit - prev_rec.declared_profit) / 100 * prev_rec.balance
 
     #if it is not fx-trend or there is no information about declared profit - try to calculate
     add_deposit_for = curr_rec.deposit - prev_rec.deposit
