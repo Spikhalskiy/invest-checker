@@ -1,5 +1,5 @@
 from datetime import datetime
-
+from const import PYTHON_DATE_FORMAT
 
 class Record:
     provider = ""
@@ -24,5 +24,6 @@ class Record:
         return self.provider, self.timestamp, self.account, self.pamm, self.deposit, self.balance, self.declared_profit
 
     def __str__(self):
-        return u', '.join(map(unicode, (self.provider, self.timestamp.strftime("%Y-%m-%d %H:%M:%S"), self.account,
-                                        self.pamm, self.deposit, self.balance, self.declared_profit))).encode('utf-8')
+        return u', '.join(map(unicode, (self.provider, self.timestamp.strftime(PYTHON_DATE_FORMAT + " %H:%M:%S"),
+                                        self.account, self.pamm, self.deposit, self.balance, self.declared_profit)))\
+            .encode('utf-8')

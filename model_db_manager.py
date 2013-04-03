@@ -8,16 +8,20 @@ RECORD_SQL_COLUMN_NAMES = "provider, timestamp, account, pamm, deposit, balance,
 def transactional(fn):
     """add transactional semantics to a method."""
 
-    def transact(*args):
+    def transact(*args, **kwargs):
         con = lite.connect('checker.db')
         try:
-            result = fn(con, *args)
+            result = fn(con, *args, **kwargs)
             con.commit()
             return result
         except:
             con.rollback()
             raise
+        finally:
+            con.close()
     transact.__name__ = fn.__name__
+    transact.__doc__ = fn.__doc__
+
     return transact
 
 

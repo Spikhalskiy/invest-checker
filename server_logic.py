@@ -26,7 +26,7 @@ def calculate_profit(curr_rec, prev_rec):
 
 
 def accounts_summary(period):
-    records = get_last_results_for_period(period + 1) # one more, earlier date for calculation
+    records = get_last_results_for_period(period + 1)  # one more, earlier date for calculation
     account_names = list(set(map(lambda x: x.account, records)))
 
     dates = map(lambda round_tmstmp: round_tmstmp.strftime(PYTHON_DATE_FORMAT),

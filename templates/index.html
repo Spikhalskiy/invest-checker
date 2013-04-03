@@ -28,7 +28,7 @@
                         var series_piece = series_dict[series_piece_name];
 
                         if (!series_piece) {
-                            series_piece = {name: rec.pamm, data: []};
+                            series_piece = {name: rec.pamm, provider: rec.provider, data: []};
                             series_dict[series_piece_name] = series_piece;
                             series.push(series_piece);
                         }
@@ -126,7 +126,7 @@
 
                 var last_date = summary.dates[summary.dates.length - 1];
                 return summary.dataset.reduce(function(resultArray, row) {
-                    rec = row[row.length - 1];
+                    var rec = row[row.length - 1];
                     if (rec.date == last_date) {
                         resultArray.push([rec.pamm, rec.deposit]);
                     }
