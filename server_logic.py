@@ -6,6 +6,15 @@ from utils import props
 from dateutil.parser import parse
 
 
+def calculate_profit(curr_rec, prev_rec):
+    add_deposit_for = curr_rec.deposit - prev_rec.deposit
+
+    # if add deposit > 0 - we simply add money to account and we should correct it from balance profit
+    if add_deposit_for < 0:
+        add_deposit_for = 0
+
+    return curr_rec.balance - prev_rec.balance - add_deposit_for
+
 def accounts_summary(period):
     records = get_last_results_for_period(period + 1) # one more, earlier date for calculation
     account_names = list(set(map(lambda x: x.account, records)))
@@ -40,7 +49,7 @@ def accounts_summary(period):
 
             #add profit in perc in relation to previous date
             if prev is not None:
-                profit = (rec.balance - prev.balance) - (rec.deposit - prev.deposit)
+                profit = calculate_profit(rec, prev)
                 prev_balance = prev.balance
                 rec.profit_in_perc = profit / prev_balance
                 #use later for summary series
