@@ -4,9 +4,17 @@ import simplejson as json
 from model_db_manager import get_last_results_for_period
 from utils import props
 from dateutil.parser import parse
+from const import PYTHON_DATE_FORMAT
+from providers import ALPARI_PROVIDER_NAME, FX_TREND_PROVIDER_NAME, GAMMA_IC_PROVIDER_NAME
 
 
 def calculate_profit(curr_rec, prev_rec):
+    if curr_rec.provider == FX_TREND_PROVIDER_NAME:
+        # fx-trend profit calculation strategy
+        if curr_rec.declared_profit and prev_rec.declared_profit:
+            return (curr_rec.declared_profit - prev_rec.declared_profit) * prev_rec.balance
+
+    #if it is not fx-trend or there is no information about declared profit - try to calculate
     add_deposit_for = curr_rec.deposit - prev_rec.deposit
 
     # if add deposit > 0 - we simply add money to account and we should correct it from balance profit
@@ -15,11 +23,12 @@ def calculate_profit(curr_rec, prev_rec):
 
     return curr_rec.balance - prev_rec.balance - add_deposit_for
 
+
 def accounts_summary(period):
     records = get_last_results_for_period(period + 1) # one more, earlier date for calculation
     account_names = list(set(map(lambda x: x.account, records)))
 
-    dates = map(lambda round_tmstmp: round_tmstmp.strftime("%Y-%m-%d"),
+    dates = map(lambda round_tmstmp: round_tmstmp.strftime(PYTHON_DATE_FORMAT),
                 sorted(list(set(
                     map(lambda tmstmp: datetime(tmstmp.year, tmstmp.month, tmstmp.day),
                         map(lambda rec: parse(rec.timestamp), records)))))
@@ -45,7 +54,7 @@ def accounts_summary(period):
         for rec in row:
             #add date for easy process on client
             timestamp = parse(rec.timestamp)
-            rec.date = datetime(timestamp.year, timestamp.month, timestamp.day).strftime("%Y-%m-%d")
+            rec.date = datetime(timestamp.year, timestamp.month, timestamp.day).strftime(PYTHON_DATE_FORMAT)
 
             #add profit in perc in relation to previous date
             if prev is not None:

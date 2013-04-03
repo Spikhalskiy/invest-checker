@@ -7,6 +7,9 @@ from lxml.html import document_fromstring, fragment_fromstring
 from settings import Settings
 from model import *
 
+ALPARI_PROVIDER_NAME = "Alpari"
+FX_TREND_PROVIDER_NAME = "FX-Trend"
+GAMMA_IC_PROVIDER_NAME = "GammaIC"
 
 class Provider:
 
@@ -31,7 +34,8 @@ class Provider:
     def _get_html(self):
         return self._read_url(self.get_data_url())
 
-    def _read_url(self, url): return self.browser.open(url).get_data()
+    def _read_url(self, url):
+        return self.browser.open(url).get_data()
 
     def _get_doc(self):
         return document_fromstring(self._get_html())
@@ -53,7 +57,8 @@ class FXTrend(Provider):
 
     def extract(self, h):
         return map(
-            lambda x: ("FX-Trend", x[1][0].text, x[2].text_content(), x[6].text.strip(), x[7].text.strip()),#, x[8].text.strip()),
+            lambda x: (FX_TREND_PROVIDER_NAME,
+                       x[1][0].text, x[2].text_content(), x[6].text.strip(), x[7].text.strip(), x[8].text.strip()),
             filter(
                 lambda x: len(list(x)) > 1,
                 h.cssselect('div#investors_block table tr.dt_actual')
@@ -79,7 +84,7 @@ class Alpari(Provider):
             table[1]
         ))
         return map(
-            lambda x: ("Alpari", x[0], x[1], data[x[0]][0], x[3].replace(',','')),
+            lambda x: (ALPARI_PROVIDER_NAME, x[0], x[1], data[x[0]][0], x[3].replace(',',''), None),
             map(
                 lambda x: (re.split('\W+', x[0][0].text)[0], x[0][0].get('title'), 1, x[1].text, 1),
                 filter(
@@ -104,9 +109,10 @@ class GammaIC(Provider):
 
     def extract(self, h):
         return [[
-                    "GammaIC",
+                    GAMMA_IC_PROVIDER_NAME,
                     'GammaIC',
                     'GammaIC',
                     float(h.cssselect('div.yy > ul > li')[0].text_content().strip().split(' ')[0]),
-                    float(h.cssselect('div.block_left div.yi > ul > li')[0].text_content().strip().split(' ')[0])
+                    float(h.cssselect('div.block_left div.yi > ul > li')[0].text_content().strip().split(' ')[0]),
+                    None
                 ]]
