@@ -9,6 +9,7 @@ from flask_wrapper import Gzip
 app = EnhancedFlask("Invest Checker")
 Gzip(app)
 
+
 @app.route('/accounts_summary')
 def get_accounts_summary():
     period = int(request.args.get('period', 7))

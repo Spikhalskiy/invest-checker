@@ -15,6 +15,7 @@ class Provider:
 
     def __init__(self):
         self.browser = Browser()
+        self.settings = Settings("checker.properties")
         self.browser.addheaders = [
             ('User-agent','Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/535.11 (KHTML, like Gecko) Chrome/17.0.963.56 Safari/535.11'),
             ('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'),
@@ -48,8 +49,7 @@ class FXTrend(Provider):
     def get_login_url(self):        return "https://fx-trend.com/login"
 
     def get_credentials(self):
-        settings = Settings("checker.properties")
-        return {'login': settings.get_property("fx.username"), 'pass': settings.get_property("fx.password")}
+        return {'login': self.settings.get_property("fx.username"), 'pass': self.settings.get_property("fx.password")}
 
     def get_login_form(self):       return 'login_form'
 
@@ -69,7 +69,8 @@ class FXTrend(Provider):
 class Alpari(Provider):
     def get_login_url(self):    return "https://www.alpari.ru/ru/login/"
 
-    def get_credentials(self):  return {'login': '$$$', 'password': '%%%'}
+    def get_credentials(self):  return {'login': self.settings.get_property("alpari.username"),
+                                        'password': self.settings.get_property("alpari.password")}
 
     def get_data_url(self):     return "https://my.alpari.ru/ru/"
 
@@ -99,9 +100,8 @@ class GammaIC(Provider):
     def get_login_url(self):        return "https://gamma-ic.com/"
 
     def get_credentials(self):
-        settings = Settings("checker.properties")
-        return {'USER_LOGIN': settings.get_property("gamma.username"),
-                'USER_PASSWORD': settings.get_property("gamma.password")}
+        return {'USER_LOGIN': self.settings.get_property("gamma.username"),
+                'USER_PASSWORD': self.settings.get_property("gamma.password")}
 
     def get_login_form(self):   return "enter"
 
