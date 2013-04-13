@@ -55,10 +55,24 @@ class FXTrend(Provider):
 
     def get_data_url(self):         return "https://fx-trend.com/my/pamm_investor/accounts/"
 
+    def get_deposit(self, inv_account):
+        doc = document_fromstring(
+            self._read_url('https://fx-trend.com/my/pamm_investor/details/' + inv_account[3:])
+        )
+        transfers = map(
+            lambda x: float(x[1].text_content().split(' ')[0]),
+            filter(
+                lambda x: len(x) == 2 and len(x[0]) == 1 and
+                             ('Depositing' in x[0][0].text_content() or 'Withdrawal' in x[0][0].text_content()),
+                doc.cssselect('div#mb_center table tr')
+            )
+        )
+        return transfers[0] + transfers[1]
+
     def extract(self, h):
         return map(
             lambda x: (FX_TREND_PROVIDER_NAME,
-                       x[1][0].text, x[2].text_content(), x[6].text.strip(), x[7].text.strip(), x[8].text.strip()),
+                       x[1][0].text, x[2].text_content(), self.get_deposit(x[1][0].text), x[7].text.strip(), x[8].text.strip()),
             filter(
                 lambda x: len(list(x)) > 1,
                 h.cssselect('div#investors_block table tr.dt_actual')
