@@ -61,7 +61,7 @@ def accounts_summary(period):
             if prev is not None:
                 profit = calculate_profit(rec, prev)
                 prev_balance = prev.balance
-                rec.profit_in_perc = profit / prev_balance
+                rec.profit_in_perc = profit / prev_balance if prev_balance != 0 else 0
                 #use later for summary series
                 summary_profit_for_date[rec.date] += profit
                 summary_prev_balance_for_date[rec.date] += prev_balance
