@@ -72,9 +72,9 @@ class FXTrend(Provider):
     def extract(self, h):
         return map(
             lambda x: (FX_TREND_PROVIDER_NAME,
-                       x[1][0].text, x[2].text_content(), self.get_deposit(x[1][0].text), x[7].text.strip(), x[8].text.strip()),
+                       x[1][0].text, x[2].text_content(), x[6].text.strip(), x[7].text.strip(), x[8].text.strip()),
             filter(
-                lambda x: len(list(x)) > 1,
+                lambda x: len(list(x)) > 1 and x[5].get('class') == 'acc_status_1',
                 h.cssselect('div#investors_block table tr.dt_actual')
             )
         )
