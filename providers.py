@@ -10,6 +10,7 @@ from model import *
 ALPARI_PROVIDER_NAME = "Alpari"
 FX_TREND_PROVIDER_NAME = "FX-Trend"
 GAMMA_IC_PROVIDER_NAME = "GammaIC"
+VLADIMIR_FX_PROVIDER_NAME = "VladimirFX"
 
 class Provider:
 
@@ -27,7 +28,10 @@ class Provider:
     def login(self):
         b = self.browser
         b.open(self.get_login_url())
-        b.select_form(self.get_login_form())
+        if self.get_login_form():
+            b.select_form(self.get_login_form())
+        else:
+            b.form = list(b.forms())[0]
         for k, v in self.get_credentials().items():
             b[k] = v
         b.submit()
@@ -130,3 +134,29 @@ class GammaIC(Provider):
                     float(h.cssselect('div.block_left div.yi > ul > li')[0].text_content().strip().split(' ')[0]),
                     None
                 ]]
+
+
+class VladimirFX(Provider):
+    def get_login_url(self):        return "https://www.vladimirfx.com/cab.php"
+
+    def get_credentials(self):
+        return {
+            'login': self.settings.get_property("vladimirfx.username"),
+            'pass': self.settings.get_property("vladimirfx.password")
+        }
+
+    def get_login_form(self):       return None
+
+    def get_data_url(self):         return "https://fx-trend.com/my/pamm_investor/accounts/"
+
+    def extract(self, h):
+        rows = filter(lambda row: len(row) == 2, h.cssselect('table.Table tr'))
+        print rows
+        return (
+            VLADIMIR_FX_PROVIDER_NAME,
+            'VladimirFX',
+            'VladimirFX',
+            filter(lambda row: 'Deposit/withdrawal' in row[0].text_content(), rows)[0][1].split(' ')[0], #deposit
+            filter(lambda row: 'Balance' in row[0].text_content(), rows)[0][1].split(' ')[0], #balance
+            filter(lambda row: 'Profit/Loss' in row[0].text_content(), rows)[0][1].split(' ')[0]  #profit
+        )
